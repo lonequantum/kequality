@@ -11,11 +11,11 @@ mod kingdom {
         use std::collections::HashMap;
 
         pub type Id = u32; // for values between 1 and 200_000
-        pub type IdSized = u32; // for counting cities - can't exceed the maximum Id
+        pub type IdSized = u32; // for counting cities or roads - can't exceed the maximum Id
 
         pub struct City {
             //id: Id, // can be removed - redundant with cities indexation
-            roads_to: HashMap<Id, Option<IdSized>>, // links to other cities
+            roads_to: HashMap<Id, IdSized>, // links to other cities
         }
 
         impl City {
@@ -27,7 +27,7 @@ mod kingdom {
 
             // Adds a one-way road from our city to another city.
             pub fn add_road_to(&mut self, other_city_id: Id) -> &mut City {
-                self.roads_to.entry(other_city_id).or_insert(None);
+                self.roads_to.entry(other_city_id).or_insert(0);
 
                 self
             }

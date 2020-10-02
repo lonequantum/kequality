@@ -158,7 +158,12 @@ mod kingdom {
                             RoadIterator::new(&kingdom.cities[start_link.from])
                         ];
 
-                        // TODO
+                        while let Some((&road_to, _)) = chain[1].iterator.next() {
+                            if road_to != start_link.to {
+                                chain.push(RoadIterator::new(&kingdom.cities[road_to]));
+                                break;
+                            }
+                        }
 
                         chain
                     }

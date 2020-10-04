@@ -4,6 +4,7 @@
 
 mod kingdom {
     use std::collections::HashMap;
+    use self::kingdom_browser::*;
 
     #[allow(non_camel_case_types)]
     pub type size_k = usize;
@@ -12,13 +13,13 @@ mod kingdom {
 
     // A road is a one-way link between two cities and is owned by the city it starts from.
     // It holds the number of cities that are reachable by taking it.
-    struct Road {
+    pub struct Road {
         reachable_cities_count: size_k
     }
 
     // A city is a node in a tree.
     // It's a list of roads that start from it, plus an identifier of the tree the city belongs to.
-    struct City {
+    pub struct City {
         id: CityId, // convenient, but redundant with cities indexation at the kingdom level
         tree_id: TreeId,
         roads_to: HashMap<CityId, Road>
@@ -49,10 +50,9 @@ mod kingdom {
         // so we have the total number of cities in the kingdom that are reachable from our city.
         fn count_reachable_cities(&self, exclude: CityId) -> size_k {
             let mut count = 0;
-            for (&city_id, road) in &self.roads_to {
-                if city_id != exclude {
-                    count += road.reachable_cities_count
-                }
+            let mut ri = RoadIterator::new(&self, exclude);
+            while let Some((_, road)) = ri.next() {
+                count += road.reachable_cities_count;
             }
 
             count
@@ -122,25 +122,38 @@ mod kingdom {
     mod kingdom_browser {
         use super::*;
 
+        pub struct RoadIterator<'a> {
+            owner_city_id: CityId,
+            exclude_dest_id: CityId,
+            iterator: std::collections::hash_map::Iter<'a, CityId, Road>
+        }
+
+        impl RoadIterator<'_> {
+            pub fn new(city: &City, exclude_dest_id: CityId) -> RoadIterator {
+                RoadIterator {
+                    owner_city_id: city.id,
+                    exclude_dest_id,
+                    iterator: city.roads_to.iter()
+                }
+            }
+
+            pub fn next(&mut self) -> Option<(&CityId, &Road)> {
+                let ret = self.iterator.next();
+                if let Some((&road_to, _)) = ret {
+                    if road_to == self.exclude_dest_id {
+                        return self.next();
+                    }
+                }
+
+                ret
+            }
+        }
+
         // Another convenient way to define a road.
         // It's the PointingTreeBrowser's I/O format.
         pub struct Link {
             from: CityId,
             to: CityId
-        }
-
-        struct RoadIterator<'a> {
-            owner_city_id: CityId,
-            iterator: std::collections::hash_map::Iter<'a, CityId, Road>
-        }
-
-        impl RoadIterator<'_> {
-            fn new(city: &City) -> RoadIterator {
-                RoadIterator {
-                    owner_city_id: city.id,
-                    iterator: city.roads_to.iter()
-                }
-            }
         }
 
         pub struct PointingTreeBrowser<'a> {
@@ -153,40 +166,48 @@ mod kingdom {
                 PointingTreeBrowser {
                     kingdom,
                     current_chain: {
-                        let mut chain = vec![
-                            RoadIterator::new(&kingdom.cities[start_link.to]),
-                            RoadIterator::new(&kingdom.cities[start_link.from])
-                        ];
-
-                        while let Some((&road_to, _)) = chain[1].iterator.next() {
-                            if road_to != start_link.to {
-                                chain.push(RoadIterator::new(&kingdom.cities[road_to]));
-                                break;
-                            }
-                        }
-
-                        chain
+                        vec![
+                            RoadIterator::new(&kingdom.cities[start_link.to - 1], 0),
+                            RoadIterator::new(&kingdom.cities[start_link.from - 1], start_link.to - 1)
+                        ]
                     }
                 }
             }
         }
 
-        /*impl Iterator for PointingTreeBrowser<'_> {
+        impl Iterator for PointingTreeBrowser<'_> {
             type Item = Link;
 
             fn next(&mut self) -> Option<Self::Item> {
-                let len = self.current_chain.len();
-                match len {
-                    2 => None,
-                    _ => {
-                        let current_from = self.current_chain[len - 1];
-                        let current_to   = self.current_chain[len - 2];
+                let mut len = self.current_chain.len();
+                if len == 1 {
+                    None
+                } else {
+                    let current_from = &mut self.current_chain[len - 1];
+                    let current_from_owner_id = current_from.owner_city_id;
 
-                        Some(Link{from: 2, to: 7})
+                    if let Some ((&road_to, _)) = current_from.next() {
+                        self.current_chain.push(
+                            RoadIterator::new(&self.kingdom.cities[road_to - 1], current_from_owner_id)
+                        );
+                    } else {
+                        len -= 1;
+                        self.current_chain.truncate(len);
+                        if len == 1 {
+                            return None;
+                        }
                     }
+
+                    let current_from = &self.current_chain[len - 1];
+                    let current_to   = &self.current_chain[len - 2];
+
+                    Some(Link{
+                        from: current_from.owner_city_id,
+                        to: current_to.owner_city_id
+                    })
                 }
             }
-        }*/
+        }
     }
 }
 

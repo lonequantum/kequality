@@ -106,6 +106,11 @@ mod kingdom {
                  city_right.auto_update_road_to(city_left))
             };
 
+            let mut ptb = PointingTreeBrowser::new(&self, Link {
+                from: city_id_left,
+                to: city_id_right
+            });
+
             // TODO
         }
 
@@ -138,10 +143,10 @@ mod kingdom {
             }
 
             pub fn next(&mut self) -> Option<(&CityId, &Road)> {
-                let ret = self.iterator.next();
+                let mut ret = self.iterator.next();
                 if let Some((&road_to, _)) = ret {
                     if road_to == self.exclude_dest_id {
-                        return self.next();
+                        ret = self.iterator.next();
                     }
                 }
 
@@ -152,8 +157,8 @@ mod kingdom {
         // Another convenient way to define a road.
         // It's the PointingTreeBrowser's I/O format.
         pub struct Link {
-            from: CityId,
-            to: CityId
+            pub from: CityId,
+            pub to: CityId
         }
 
         pub struct PointingTreeBrowser<'a> {
@@ -168,7 +173,7 @@ mod kingdom {
                     current_chain: {
                         vec![
                             RoadIterator::new(&kingdom.cities[start_link.to - 1], 0),
-                            RoadIterator::new(&kingdom.cities[start_link.from - 1], start_link.to - 1)
+                            RoadIterator::new(&kingdom.cities[start_link.from - 1], start_link.to)
                         ]
                     }
                 }
@@ -187,15 +192,14 @@ mod kingdom {
                     let current_from_owner_id = current_from.owner_city_id;
 
                     if let Some ((&road_to, _)) = current_from.next() {
+                        len += 1;
                         self.current_chain.push(
                             RoadIterator::new(&self.kingdom.cities[road_to - 1], current_from_owner_id)
                         );
                     } else {
                         len -= 1;
                         self.current_chain.truncate(len);
-                        if len == 1 {
-                            return None;
-                        }
+                        return self.next();
                     }
 
                     let current_from = &self.current_chain[len - 1];

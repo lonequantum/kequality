@@ -97,19 +97,29 @@ mod kingdom {
              &mut part_2[city_id_2 - 1 - part_1_len])
         }
 
-        // Adds a two-way link between two cities
+        // Adds a two-way link between two cities.
+        // Merges trees and updates all roads.
         pub fn link(&mut self, city_id_left: CityId, city_id_right: CityId) {
-            let (count_right, count_left) = {
+            let (count_right, count_left, tree_id_left, tree_id_right) = {
                 let (city_left, city_right) = self.select_cities_mut(city_id_left, city_id_right);
 
                 (city_left.auto_update_road_to(city_right),
-                 city_right.auto_update_road_to(city_left))
+                 city_right.auto_update_road_to(city_left),
+                 city_left.tree_id,
+                 city_right.tree_id)
             };
 
-            let mut ptb = PointingTreeBrowser::new(&self, Link {
+            let pointing_tree_left: Vec<Link> = PointingTreeBrowser::new(&self, Link {
                 from: city_id_left,
                 to: city_id_right
-            });
+            })
+            .collect();
+
+            let pointing_tree_right: Vec<Link> = PointingTreeBrowser::new(&self, Link {
+                from: city_id_right,
+                to: city_id_left
+            })
+            .collect();
 
             // TODO
         }

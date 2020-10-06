@@ -136,9 +136,17 @@ mod kingdom {
 
         // Returns the answer for a query.
         pub fn solve(&self, query: Vec<CityId>) -> size_k {
-            match query.len() {
-                1 => 1,
-                _ => 42 // TODO: remove placeholder and compute real solution ^^
+            if query.len() == 1 {
+                1
+            } else {
+                let first_tree_id = self.cities[query[0] - 1].tree_id;
+                for city_id in &query[1..] {
+                    if self.cities[city_id - 1].tree_id != first_tree_id {
+                        return 0;
+                    }
+                }
+
+                42
             }
         }
     }

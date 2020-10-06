@@ -139,10 +139,30 @@ mod kingdom {
             if query.len() == 1 {
                 1
             } else {
-                let first_tree_id = self.cities[query[0] - 1].tree_id;
+                let first_city = &self.cities[query[0] - 1];
+
                 for city_id in &query[1..] {
-                    if self.cities[city_id - 1].tree_id != first_tree_id {
-                        return 0;
+                    if self.cities[city_id - 1].tree_id != first_city.tree_id {return 0;} // not the same tree
+                }
+
+                let mut first_city_ri = RoadIterator::new(&first_city, 0);
+
+                while let Some((&city_id, _)) = first_city_ri.next() {
+                    if query.contains(&city_id) {return 0;} // distance between cities is exactly 1 road
+
+                    let mut pointing_tree = PointingTreeBrowser::new(&self, Link {
+                        from: city_id,
+                        to: first_city.id
+                    });
+
+                    while let Some(link) = pointing_tree.next() {
+                        if query.contains(&link.from) {
+                            let distance = pointing_tree.current_distance();
+
+                            if distance % 2 == 1 {return 0;} // distance between cities is an odd number of roads
+
+                            // TODO
+                        }
                     }
                 }
 
@@ -205,6 +225,10 @@ mod kingdom {
                         ]
                     }
                 }
+            }
+
+            pub fn current_distance(&self) -> size_k {
+                self.current_chain.len() - 1
             }
         }
 
@@ -293,6 +317,7 @@ fn main() {
                 .collect()
         };
 
+        print!("{:?} -> ", query);
         println!("{}", domki.solve(query));
     }
 }

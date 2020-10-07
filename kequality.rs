@@ -155,6 +155,8 @@ mod kingdom {
     mod kingdom_browser {
         use super::*;
 
+        // To iterate over roads that start from a city.
+        // Typically we want one road to be ignored.
         pub struct RoadIterator<'a> {
             owner_city_id: CityId,
             exclude_dest_id: CityId,
@@ -189,6 +191,7 @@ mod kingdom {
             pub to: CityId
         }
 
+        // To iterate over a (sub)tree behind a particular city/road.
         pub struct PointingTreeBrowser<'a> {
             kingdom: &'a Kingdom,
             current_chain: Vec<RoadIterator<'a>>
@@ -293,7 +296,7 @@ fn main() {
                 .collect()
         };
 
-        print!("{:?} -> ", query);
+        print!("{:?} -> ", query); // to be removed before submitting to spoj.com
         println!("{}", domki.solve(query));
     }
 }

@@ -23,7 +23,7 @@ mod kingdom {
             Kingdom {cities}
         }
 
-        // Adds two-way link between two cities.
+        // Adds a two-way link between two cities.
         pub fn link(&mut self, mut city_id_1: CityId, mut city_id_2: CityId) {
             city_id_1 -= 1;
             city_id_2 -= 1;

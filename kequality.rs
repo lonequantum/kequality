@@ -1,7 +1,3 @@
-// spoj.com requires the solution to be one file only,
-// so we are not using any external definition.
-
-
 mod kingdom {
     use std::collections::HashMap;
     use self::kingdom_browser::*;
@@ -20,7 +16,7 @@ mod kingdom {
     // A city is a node in a tree.
     // It's a list of roads that start from it, plus an identifier of the tree the city belongs to.
     pub struct City {
-        id: CityId, // convenient, but redundant with cities indexation at the kingdom level
+        id: CityId,
         tree_id: TreeId,
         roads_to: HashMap<CityId, Road>
     }
@@ -66,7 +62,6 @@ mod kingdom {
 
     impl Kingdom {
         // Preallocates memory for up to 200_000 cities.
-        // TODO: replace with "transmute" code.
         pub fn new(number_of_cities: size_k) -> Kingdom {
             let mut cities = Vec::new();
             for i in 0..number_of_cities {
@@ -99,7 +94,6 @@ mod kingdom {
 
         // Adds a two-way link between two cities.
         // Merges trees and updates all roads.
-        // Perfs: we rely on example input data and assume the right part of the tree is always smaller than (or equal as) the left one.
         pub fn link(&mut self, city_id_left: CityId, city_id_right: CityId) {
             let (count_right, count_left, tree_id_left) = {
                 let (city_left, city_right) = self.select_cities_mut(city_id_left, city_id_right);

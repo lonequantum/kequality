@@ -5,6 +5,7 @@ mod kingdom {
     #[allow(non_camel_case_types)]
     pub type size_k = usize;
     pub type CityId = size_k;
+        type TreeId = size_k;
 
     // A road is a one-way direct link to a city.
     // It holds the number of cities that are reachable (destination and beyond) by taking it.
@@ -16,7 +17,7 @@ mod kingdom {
     // A city is a collection of roads to immediate next cities.
     // It also holds the ID of the tree it belongs to.
     struct City {
-        tree_id: size_k,
+        tree_id: TreeId,
         roads: Vec<Road>
     }
 
@@ -79,7 +80,7 @@ mod kingdom {
         }
 
         // Returns the number of cities of a given tree.
-        fn tree_len(&self, tree_id: size_k) -> size_k {
+        fn tree_len(&self, tree_id: TreeId) -> size_k {
             self.cities.iter()
                        .map(|city| city.tree_id)
                        .filter(|id| *id == tree_id)

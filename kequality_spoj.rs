@@ -22,8 +22,10 @@ mod kingdom {
     }
 
     // A kingdom is a collection of cities.
+    // It also memoizes some internal results.
     pub struct Kingdom {
-        cities: Vec<City>
+        cities: Vec<City>,
+        trees_sizes: Vec<size_k> // a value of 0 means uninitialized
     }
 
     impl Kingdom {
@@ -31,14 +33,17 @@ mod kingdom {
         // TODO: replace with "transmute" code.
         pub fn new(number_of_cities: size_k) -> Kingdom {
             let mut cities = Vec::new();
+            let mut trees_sizes = Vec::new();
+
             for tree_id in 0..number_of_cities {
                 cities.push(City{
                     tree_id,
                     roads: Vec::new()
                 });
+                trees_sizes.push(0);
             }
 
-            Kingdom {cities}
+            Kingdom {cities, trees_sizes}
         }
 
         // Adds a two-way link between two cities.
@@ -63,7 +68,7 @@ mod kingdom {
         }
 
         // Returns the answer for a query.
-        pub fn solve(&self, mut query: Vec<CityId>) -> size_k {
+        pub fn solve(&mut self, mut query: Vec<CityId>) -> size_k {
             query[0] -= 1;
 
             if query.len() == 1 {
@@ -81,11 +86,17 @@ mod kingdom {
         }
 
         // Returns the number of cities of a given tree.
-        fn tree_size(&self, tree_id: TreeId) -> size_k {
-            self.cities.iter()
-                       .map(|city| city.tree_id)
-                       .filter(|id| *id == tree_id)
-                       .count()
+        fn tree_size(&mut self, tree_id: TreeId) -> size_k {
+            let size = &mut self.trees_sizes[tree_id];
+
+            if *size == 0 {
+                *size = self.cities.iter()
+                                   .map(|city| city.tree_id)
+                                   .filter(|id| *id == tree_id)
+                                   .count()
+            }
+
+            *size
         }
     }
 }

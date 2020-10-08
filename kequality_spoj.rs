@@ -1,3 +1,6 @@
+// File to be submitted to spoj.com.
+
+
 mod kingdom {
     #[allow(non_camel_case_types)]
     pub type size_k = usize;
@@ -31,6 +34,7 @@ mod kingdom {
             self.cities[city_id_2].push(city_id_1);
         }
 
+        // Returns the answer for a query.
         pub fn solve(&self, query: Vec<CityId>) -> size_k {
             42
         }

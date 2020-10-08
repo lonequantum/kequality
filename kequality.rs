@@ -1,3 +1,7 @@
+// This is a naive and slow version of my solution that aims to have clear data structures and algorithms.
+// This is how I began to practice the Rust programming language.
+
+
 mod kingdom {
     use std::collections::HashMap;
     use self::kingdom_browser::*;
@@ -146,7 +150,7 @@ mod kingdom {
                     }
                 }
 
-                42
+                42 // TODO: remove placeholder and compute real result ^^
             }
         }
     }

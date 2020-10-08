@@ -58,7 +58,7 @@ mod kingdom {
                 reachable_cities_count: 0
             });
 
-            city_2.tree_id = city_1_tree_id;
+            city_2.tree_id = city_1_tree_id; // we assume input data is safely ordered
         }
 
         // Returns the answer for a query.
@@ -66,7 +66,7 @@ mod kingdom {
             if query.len() == 1 {return 1;}
 
             query[0] -= 1;
-            let first_tree_id = self.cities[query[0]].tree_id; // we assume input data is safely ordered
+            let first_tree_id = self.cities[query[0]].tree_id;
 
             for city_id in &mut query[1..] {
                 *city_id -= 1;

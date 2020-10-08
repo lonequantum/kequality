@@ -35,7 +35,9 @@ mod kingdom {
         }
 
         // Returns the answer for a query.
-        pub fn solve(&self, query: Vec<CityId>) -> size_k {
+        pub fn solve(&self, mut query: Vec<CityId>) -> size_k {
+            for city_id in &mut query {*city_id -= 1}
+
             42
         }
     }

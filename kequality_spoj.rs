@@ -64,11 +64,12 @@ mod kingdom {
 
         // Returns the answer for a query.
         pub fn solve(&self, mut query: Vec<CityId>) -> size_k {
+            query[0] -= 1;
+
             if query.len() == 1 {
                 return self.tree_len(self.cities[query[0]].tree_id);
             }
 
-            query[0] -= 1;
             let first_tree_id = self.cities[query[0]].tree_id;
 
             for city_id in &mut query[1..] {

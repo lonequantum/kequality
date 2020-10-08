@@ -53,7 +53,7 @@ mod kingdom {
             if query.len() == 1 {return 1;}
 
             query[0] -= 1;
-            let first_tree_id = self.cities[query[0]].tree_id;
+            let first_tree_id = self.cities[query[0]].tree_id; // we assume input data is safely ordered
 
             for city_id in &mut query[1..] {
                 *city_id -= 1;
@@ -91,8 +91,8 @@ fn main() {
 
         let city_id_1: CityId = road_definition.next().unwrap();
         let city_id_2: CityId = road_definition.next().unwrap();
-        
-        if let Some(1) = road_definition.next() {
+
+        if let Some(1) = road_definition.next() { // closed roads can be ignored
             domki.link(city_id_1, city_id_2);
         }
     }

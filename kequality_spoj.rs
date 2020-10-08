@@ -6,7 +6,7 @@ mod kingdom {
     pub type size_k = usize;
     pub type CityId = size_k;
 
-    // A city is a collection of links to other cities.
+    // A city is a collection of references (not in the Rust sense) to other cities.
     pub type City = Vec<CityId>;
 
     // A kingdom is a collection of cities.

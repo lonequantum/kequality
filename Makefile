@@ -3,4 +3,4 @@ kequality_spoj:
 	strip kequality_spoj
 
 clean:
-	rm kequality_spoj 2>/dev/null
+	rm -f kequality_spoj

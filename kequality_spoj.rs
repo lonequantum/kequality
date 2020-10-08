@@ -67,7 +67,7 @@ mod kingdom {
             query[0] -= 1;
 
             if query.len() == 1 {
-                return self.tree_len(self.cities[query[0]].tree_id);
+                return self.tree_size(self.cities[query[0]].tree_id);
             }
 
             let first_tree_id = self.cities[query[0]].tree_id;
@@ -81,7 +81,7 @@ mod kingdom {
         }
 
         // Returns the number of cities of a given tree.
-        fn tree_len(&self, tree_id: TreeId) -> size_k {
+        fn tree_size(&self, tree_id: TreeId) -> size_k {
             self.cities.iter()
                        .map(|city| city.tree_id)
                        .filter(|id| *id == tree_id)

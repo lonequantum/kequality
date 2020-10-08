@@ -8,7 +8,7 @@ mod kingdom {
 
     // A city is a collection of references (not in the Rust sense) to other cities.
     // It also holds the ID of the tree it belongs to.
-    pub struct City {
+    struct City {
         tree_id: size_k,
         roads: Vec<CityId>
     }

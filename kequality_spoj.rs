@@ -7,7 +7,11 @@ mod kingdom {
     pub type CityId = size_k;
 
     // A city is a collection of references (not in the Rust sense) to other cities.
-    pub type City = Vec<CityId>;
+    // It also holds the ID of the tree it belongs to.
+    pub struct City {
+        tree_id: size_k,
+        roads: Vec<CityId>
+    }
 
     // A kingdom is a collection of cities.
     pub struct Kingdom {
@@ -19,8 +23,11 @@ mod kingdom {
         // TODO: replace with "transmute" code.
         pub fn new(number_of_cities: size_k) -> Kingdom {
             let mut cities = Vec::new();
-            for _ in 0..number_of_cities {
-                cities.push(Vec::new());
+            for tree_id in 0..number_of_cities {
+                cities.push(City{
+                    tree_id,
+                    roads: Vec::new()
+                });
             }
 
             Kingdom {cities}
@@ -30,15 +37,28 @@ mod kingdom {
         pub fn link(&mut self, mut city_id_1: CityId, mut city_id_2: CityId) {
             city_id_1 -= 1;
             city_id_2 -= 1;
-            self.cities[city_id_1].push(city_id_2);
-            self.cities[city_id_2].push(city_id_1);
+
+            let city_1 = &mut self.cities[city_id_1];
+            city_1.roads.push(city_id_2);
+            let city_1_tree_id = city_1.tree_id;
+
+            let city_2 = &mut self.cities[city_id_2];
+            city_2.roads.push(city_id_1);
+
+            city_2.tree_id = city_1_tree_id;
         }
 
         // Returns the answer for a query.
         pub fn solve(&self, mut query: Vec<CityId>) -> size_k {
             if query.len() == 1 {return 1;}
 
-            for city_id in &mut query {*city_id -= 1}
+            query[0] -= 1;
+            let first_tree_id = self.cities[query[0]].tree_id;
+
+            for city_id in &mut query[1..] {
+                *city_id -= 1;
+                if self.cities[*city_id].tree_id != first_tree_id {return 0;} // not the same tree
+            }
 
             42
         }

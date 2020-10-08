@@ -63,7 +63,9 @@ mod kingdom {
 
         // Returns the answer for a query.
         pub fn solve(&self, mut query: Vec<CityId>) -> size_k {
-            if query.len() == 1 {return 1;}
+            if query.len() == 1 {
+                return self.tree_len(self.cities[query[0]].tree_id);
+            }
 
             query[0] -= 1;
             let first_tree_id = self.cities[query[0]].tree_id;
@@ -74,6 +76,14 @@ mod kingdom {
             }
 
             42
+        }
+
+        // Returns the number of cities of a given tree.
+        fn tree_len(&self, tree_id: size_k) -> size_k {
+            self.cities.iter()
+                       .map(|city| city.tree_id)
+                       .filter(|id| *id == tree_id)
+                       .count()
         }
     }
 }

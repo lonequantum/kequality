@@ -135,7 +135,7 @@ mod kingdom {
         // Returns the answer for a query.
         pub fn solve(&self, query: Vec<CityId>) -> size_k {
             if query.len() == 1 {
-                1
+                self.cities[query[0] - 1].count_reachable_cities(0) + 1
             } else {
                 // Quick checking: is every city reachable by others?
                 let first_city = &self.cities[query[0] - 1];

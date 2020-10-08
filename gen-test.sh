@@ -13,7 +13,7 @@ for city_id in $(seq 3 $number_of_cities); do
         limit=$((city_id - 1))
         start=$(shuf -i 1-${limit} -n 1)
         open=$RANDOM
-        if [ $open -lt 1000 ]; then
+        if [ $open -lt 2048 ]; then
                 open=0
         else
                 open=1

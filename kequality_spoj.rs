@@ -6,11 +6,18 @@ mod kingdom {
     pub type size_k = usize;
     pub type CityId = size_k;
 
-    // A city is a collection of references (not in the Rust sense) to other cities.
+    // A road is a one-way direct link to a city.
+    // It holds the number of cities that are reachable (destination and beyond) by taking it.
+    struct Road {
+        destination: CityId,
+        reachable_cities_count: size_k // a value of 0 means uninitialized
+    }
+
+    // A city is a collection of roads to immediate next cities.
     // It also holds the ID of the tree it belongs to.
     struct City {
         tree_id: size_k,
-        roads: Vec<CityId>
+        roads: Vec<Road>
     }
 
     // A kingdom is a collection of cities.
@@ -39,11 +46,17 @@ mod kingdom {
             city_id_2 -= 1;
 
             let city_1 = &mut self.cities[city_id_1];
-            city_1.roads.push(city_id_2);
+            city_1.roads.push(Road{
+                destination: city_id_2,
+                reachable_cities_count: 0
+            });
             let city_1_tree_id = city_1.tree_id;
 
             let city_2 = &mut self.cities[city_id_2];
-            city_2.roads.push(city_id_1);
+            city_2.roads.push(Road{
+                destination: city_id_1,
+                reachable_cities_count: 0
+            });
 
             city_2.tree_id = city_1_tree_id;
         }

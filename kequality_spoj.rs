@@ -21,7 +21,7 @@ mod kingdom {
         roads: Vec<Road>
     }
 
-    // A kingdom is a collection of cities.
+    // A kingdom is a collection of (trees of) cities.
     // It also memoizes some internal results.
     pub struct Kingdom {
         cities: Vec<City>,

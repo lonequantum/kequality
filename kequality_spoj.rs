@@ -25,7 +25,7 @@ mod kingdom {
     // It also memoizes some internal results.
     pub struct Kingdom {
         cities: Vec<City>,
-        trees_sizes: Vec<size_k> // a value of 0 means uninitialized
+        trees_sizes: Vec<size_k> // a value of 0 means uninitialized (0 as "no tree with that index/ID" is never used)
     }
 
     impl Kingdom {

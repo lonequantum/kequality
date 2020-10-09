@@ -15,9 +15,10 @@ mod kingdom {
     }
 
     // A city is a collection of roads to immediate next cities.
-    // It also holds the ID of the tree it belongs to.
+    // It also holds the ID of the tree it belongs to, and its depth in this tree.
     struct City {
         tree_id: TreeId,
+        depth: size_k,
         roads: Vec<Road>
     }
 
@@ -38,6 +39,7 @@ mod kingdom {
             for tree_id in 0..number_of_cities {
                 cities.push(City{
                     tree_id,
+                    depth: 0,
                     roads: Vec::new()
                 });
                 trees_sizes.push(0);
@@ -57,6 +59,7 @@ mod kingdom {
                 reachable_cities_count: 0
             });
             let city_1_tree_id = city_1.tree_id;
+            let city_1_depth = city_1.depth;
 
             let city_2 = &mut self.cities[city_id_2];
             city_2.roads.push(Road{
@@ -64,7 +67,9 @@ mod kingdom {
                 reachable_cities_count: 0
             });
 
-            city_2.tree_id = city_1_tree_id; // we assume input data is safely ordered
+            // Warning!: we assume input data is safely ordered.
+            city_2.tree_id = city_1_tree_id;
+            city_2.depth = city_1_depth + 1;
         }
 
         // Returns the answer for a query.
@@ -80,6 +85,15 @@ mod kingdom {
             for city_id in &mut query[1..] {
                 *city_id -= 1;
                 if self.cities[*city_id].tree_id != first_tree_id {return 0;} // not the same tree
+            }
+
+            for (i, &city_id_1) in query.iter().enumerate() {
+                let city_1_depth = self.cities[city_id_1].depth;
+                for &city_id_2 in &query[(i + 1)..] {
+                    if (city_1_depth + self.cities[city_id_2].depth) % 2 == 1 {
+                        return 0; // distance between the two cities is an odd number of roads
+                    }
+                }
             }
 
             42

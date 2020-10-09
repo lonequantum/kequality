@@ -84,7 +84,9 @@ mod kingdom {
 
             for city_id in &mut query[1..] {
                 *city_id -= 1;
-                if self.cities[*city_id].tree_id != first_tree_id {return 0;} // not the same tree
+                if self.cities[*city_id].tree_id != first_tree_id {
+                    return 0; // not the same tree
+                }
             }
 
             for (i, &city_id_1) in query.iter().enumerate() {

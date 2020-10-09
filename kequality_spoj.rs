@@ -93,7 +93,7 @@ mod kingdom {
                 *size = self.cities.iter()
                                    .map(|city| city.tree_id)
                                    .filter(|id| *id == tree_id)
-                                   .count()
+                                   .count();
             }
 
             *size

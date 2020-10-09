@@ -76,12 +76,14 @@ mod kingdom {
         pub fn solve(&mut self, mut query: Vec<CityId>) -> size_k {
             query[0] -= 1;
 
+            // People in one city only can move anywhere in the tree.
             if query.len() == 1 {
                 return self.tree_size(self.cities[query[0]].tree_id);
             }
 
-            let first_tree_id = self.cities[query[0]].tree_id;
+            // Quick checking: eliminates trivial impossible cases.
 
+            let first_tree_id = self.cities[query[0]].tree_id;
             for city_id in &mut query[1..] {
                 *city_id -= 1;
                 if self.cities[*city_id].tree_id != first_tree_id {

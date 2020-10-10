@@ -81,7 +81,7 @@ mod kingdom {
                 return self.tree_size(self.cities[query[0]].tree_id);
             }
 
-            // Quick checking: eliminates trivial impossible cases.
+            // Quick checking for trivial cases
 
             let first_tree_id = self.cities[query[0]].tree_id;
             for city_id in &mut query[1..] {
@@ -95,7 +95,7 @@ mod kingdom {
                 let city_1_depth = self.cities[city_id_1].depth;
                 for &city_id_2 in &query[(i + 1)..] {
                     if (city_1_depth + self.cities[city_id_2].depth) % 2 == 1 {
-                        return 0; // distance between the two cities is an odd number of roads
+                        return 0; // distance between two queried cities is an odd number of roads
                     }
                 }
             }

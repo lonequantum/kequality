@@ -26,7 +26,7 @@ mod kingdom {
     // It also memoizes some internal results.
     pub struct Kingdom {
         cities: Vec<City>,
-        trees_sizes: Vec<size_k> // a value of 0 means uninitialized (0 as "no tree with that index/ID" is never used)
+        trees_sizes: Vec<Option<size_k>>
     }
 
     impl Kingdom {
@@ -42,7 +42,7 @@ mod kingdom {
                     depth: 0,
                     roads: Vec::new()
                 });
-                trees_sizes.push(0);
+                trees_sizes.push(None);
             }
 
             Kingdom {cities, trees_sizes}
@@ -107,14 +107,14 @@ mod kingdom {
         fn tree_size(&mut self, tree_id: TreeId) -> size_k {
             let size = &mut self.trees_sizes[tree_id];
 
-            if *size == 0 {
-                *size = self.cities.iter()
-                                   .map(|city| city.tree_id)
-                                   .filter(|id| *id == tree_id)
-                                   .count();
+            if *size == None {
+                *size = Some(self.cities.iter()
+                                        .map(|city| city.tree_id)
+                                        .filter(|id| *id == tree_id)
+                                        .count());
             }
 
-            *size
+            size.unwrap()
         }
     }
 }

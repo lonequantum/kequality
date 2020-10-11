@@ -81,20 +81,22 @@ mod kingdom {
                 return self.tree_size(self.cities[query[0]].tree_id);
             }
 
-            // Quick checking for trivial cases
-
+            // People in different trees can't meet.
             let first_tree_id = self.cities[query[0]].tree_id;
             for city_id in &mut query[1..] {
                 *city_id -= 1;
                 if self.cities[*city_id].tree_id != first_tree_id {
-                    return 0; // not the same tree
+                    return 0;
                 }
             }
 
-            for (i, &city_id_1) in query.iter().enumerate() {
-                let city_1_depth = self.cities[city_id_1].depth;
-                for &city_id_2 in &query[(i + 1)..] {
-                    if (city_1_depth + self.cities[city_id_2].depth) % 2 == 1 {
+            for (i, &city_id_i) in query.iter().enumerate() {
+                let city_i = &self.cities[city_id_i];
+
+                for &city_id_j in &query[(i + 1)..] {
+                    let city_j = &self.cities[city_id_j];
+
+                    if (city_i.depth + city_j.depth) % 2 == 1 {
                         return 0; // distance between two queried cities is an odd number of roads
                     }
                 }
@@ -146,7 +148,7 @@ fn main() {
         let city_id_1: CityId = road_definition.next().unwrap();
         let city_id_2: CityId = road_definition.next().unwrap();
 
-        if let Some(1) = road_definition.next() { // closed roads can be ignored
+        if road_definition.next().unwrap() == 1 { // closed roads can be ignored
             domki.link(city_id_1, city_id_2);
         }
     }

@@ -22,6 +22,8 @@ mod kingdom {
         roads: Vec<Road>
     }
 
+    // A meeting point indicates the city where people in other cities are likely to meet.
+    // Then people can also meet in the rest of the tree, only by taking roads that didn't lead them to the MP.
     struct MeetingPoint {
         city_id: CityId,
         dont_go_back_to: Vec<CityId>
@@ -95,14 +97,22 @@ mod kingdom {
                 }
             }
 
+            let mut meeting_point_candidates = Vec::new();
+
             for (i, &city_id_i) in query.iter().enumerate() {
                 let city_i = &self.cities[city_id_i];
 
                 for &city_id_j in &query[(i + 1)..] {
                     let city_j = &self.cities[city_id_j];
 
-                    if (city_i.depth + city_j.depth) % 2 == 1 {
-                        return 0; // distance between two queried cities is an odd number of roads
+                    if city_i.depth != city_j.depth {
+                        if (city_i.depth + city_j.depth) % 2 == 1 {
+                            return 0; // distance between two queried cities is an odd number of roads
+                        }
+                    } else {
+                        meeting_point_candidates.push(
+                            self.find_meeting_point_from_one_depth(city_id_i, city_id_j, None)
+                        );
                     }
                 }
             }
@@ -110,6 +120,7 @@ mod kingdom {
             42
         }
 
+        // Finds the city that is the common ancestor of two cities that have the same depth.
         fn find_meeting_point_from_one_depth(&self, city_id_1: CityId, city_id_2: CityId,
                                              from_cities_ids: Option<(CityId, CityId)>) -> MeetingPoint {
             if city_id_1 != city_id_2 {

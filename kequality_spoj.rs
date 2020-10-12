@@ -193,6 +193,8 @@ fn main() {
         line.trim().parse().unwrap()
     };
 
+    let mut answers = Vec::new();
+
     for _ in 0..number_of_queries {
         let query: Vec<CityId> = {
             let mut line = String::new();
@@ -204,6 +206,35 @@ fn main() {
                 .collect()
         };
 
-        println!("{}", domki.solve(query));
+        answers.push(domki.solve(query));
+    }
+
+    let mut expected_answers: Vec<Option<size_k>> = Vec::new();
+
+    for _ in 0..number_of_queries {
+        let mut line = String::new();
+        match io::stdin().read_line(&mut line) {
+            Ok(_) => {
+                match line.trim().parse() {
+                    Ok(value) => expected_answers.push(Some(value)),
+                    Err(_) => expected_answers.push(None)
+                }
+            },
+
+            Err(_) => expected_answers.push(None)
+        }
+    }
+
+    for (&answer, &expected) in answers.iter().zip(expected_answers.iter()) {
+        if expected == None {
+            println!("{}", answer);
+        } else {
+            if expected.unwrap() != answer {
+                print!("[ERR] ");
+            } else {
+                print!("[OK ] ");
+            }
+            println!("expected: {}\tcomputed: {}", expected.unwrap(), answer);
+        }
     }
 }

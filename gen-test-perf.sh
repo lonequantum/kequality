@@ -15,7 +15,7 @@ for city_id in $(seq 3 $number_of_cities); do
         limit=$((city_id - 1))
         start=$(shuf -i 1-${limit} -n 1)
         open=$RANDOM
-        if [ $open -lt 16 -a $closed_roads -le $max_closed_roads ]; then
+        if [ $open -lt 16 -a $closed_roads -lt $max_closed_roads ]; then
                 open=0
                 closed_roads=$((closed_roads + 1))
         else

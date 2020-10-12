@@ -22,6 +22,11 @@ mod kingdom {
         roads: Vec<Road>
     }
 
+    struct MeetingPoint {
+        city_id: CityId,
+        dont_go_back_to: Vec<CityId>
+    }
+
     // A kingdom is a collection of (trees of) cities.
     // It also memoizes some internal results.
     pub struct Kingdom {
@@ -103,6 +108,23 @@ mod kingdom {
             }
 
             42
+        }
+
+        fn find_meeting_point_from_one_depth(&self, city_id_1: CityId, city_id_2: CityId,
+                                             from_cities_ids: Option<(CityId, CityId)>) -> MeetingPoint {
+            if city_id_1 != city_id_2 {
+                return self.find_meeting_point_from_one_depth(
+                    self.cities[city_id_1].roads[0].destination, self.cities[city_id_2].roads[0].destination,
+                    Some((city_id_1, city_id_2))
+                );
+            }
+
+            let from_cities_ids = from_cities_ids.unwrap();
+
+            MeetingPoint {
+                city_id: city_id_1,
+                dont_go_back_to: vec![from_cities_ids.0, from_cities_ids.1]
+            }
         }
 
         // Returns the number of cities of a given tree.

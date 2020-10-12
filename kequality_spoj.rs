@@ -26,6 +26,7 @@ mod kingdom {
     // Then people can also meet in the rest of the tree, only by taking roads that didn't lead them to the MP.
     struct MeetingPoint {
         city_id: CityId,
+        traveled_distance: size_k,
         dont_go_back_to: Vec<CityId>
     }
 
@@ -111,7 +112,7 @@ mod kingdom {
                         }
                     } else {
                         meeting_point_candidates.push(
-                            self.find_meeting_point_from_one_depth(city_id_i, city_id_j, None)
+                            self.find_meeting_point_from_one_depth(city_id_i, city_id_j)
                         );
                     }
                 }
@@ -121,20 +122,27 @@ mod kingdom {
         }
 
         // Finds the city that is the common ancestor of two cities that have the same depth.
-        fn find_meeting_point_from_one_depth(&self, city_id_1: CityId, city_id_2: CityId,
-                                             from_cities_ids: Option<(CityId, CityId)>) -> MeetingPoint {
-            if city_id_1 != city_id_2 {
-                return self.find_meeting_point_from_one_depth(
-                    self.cities[city_id_1].roads[0].destination, self.cities[city_id_2].roads[0].destination,
-                    Some((city_id_1, city_id_2))
-                );
-            }
+        fn find_meeting_point_from_one_depth(&self, mut city_id_1: CityId, mut city_id_2: CityId) -> MeetingPoint {
+            let mut old_city_id_1;
+            let mut old_city_id_2;
 
-            let from_cities_ids = from_cities_ids.unwrap();
+            let mut traveled_distance = 0;
+
+            loop {
+                old_city_id_1 = city_id_1;
+                old_city_id_2 = city_id_2;
+
+                city_id_1 = self.cities[city_id_1].roads[0].destination;
+                city_id_2 = self.cities[city_id_2].roads[0].destination;
+                traveled_distance += 1;
+
+                if city_id_1 == city_id_2 {break;}
+            }
 
             MeetingPoint {
                 city_id: city_id_1,
-                dont_go_back_to: vec![from_cities_ids.0, from_cities_ids.1]
+                traveled_distance,
+                dont_go_back_to: vec![old_city_id_1, old_city_id_2]
             }
         }
 

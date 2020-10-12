@@ -1,20 +1,23 @@
 #!/bin/bash
 # Generates random input data for performance testing
 
-output_file="test.txt"
+output_file="test-perf.txt"
 
-number_of_cities=$(shuf -i 1-200000 -n 1)
+number_of_cities=200000
+max_closed_roads=2
 echo $number_of_cities > "$output_file"
 
 echo -n "Generating $((number_of_cities - 1)) links… "
+closed_roads=0
 
 echo "1 2 1" >> "$output_file"
 for city_id in $(seq 3 $number_of_cities); do
         limit=$((city_id - 1))
         start=$(shuf -i 1-${limit} -n 1)
         open=$RANDOM
-        if [ $open -lt 16 ]; then
+        if [ $open -lt 16 -a $closed_roads -le $max_closed_roads ]; then
                 open=0
+                closed_roads=$((closed_roads + 1))
         else
                 open=1
         fi
@@ -24,7 +27,7 @@ echo -e "\e[92mDone\e[0m"
 
 echo -n "Generating queries… "
 
-total_people=$(shuf -i 1-200000 -n 1)
+total_people=$(shuf -i 100000-200000 -n 1)
 declare -a queries
 
 while [ $total_people -gt 0 ]; do

@@ -1,4 +1,5 @@
-// This is a naive and slow version of my solution that aims to have clear data structures and algorithms.
+// This is a naive and slow version of my solution that aims to have clear data structures and algorithms,
+// but will remain unfinished.
 // This is how I began to practice the Rust programming language.
 
 

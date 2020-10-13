@@ -234,15 +234,10 @@ fn main() {
     }
 
     for (&answer, &expected) in answers.iter().zip(expected_answers.iter()) {
-        if expected == None {
-            println!("{}", answer);
-        } else {
-            if expected.unwrap() != answer {
-                print!("[ERR] ");
-            } else {
-                print!("[OK ] ");
-            }
-            println!("expected: {}\tcomputed: {}", expected.unwrap(), answer);
+        match expected {
+            None => println!("{}", answer),
+            Some(value) if value == answer => println!("[OK ]\t{}", answer),
+            Some(value) => eprintln!("[ERR]\texpected: {}\tcomputed: {}", value, answer)
         }
     }
 }

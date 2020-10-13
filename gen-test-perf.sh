@@ -34,7 +34,6 @@ declare -a queries
 
 while [[ $total_people > 0 ]]; do
         people=$(shuf -i 1-${total_people} -n 1)
-        cities=""
 
         limit=$((people > NUMBER_OF_CITIES ? NUMBER_OF_CITIES : people))
         length_of_query=$(shuf -i 1-${limit} -n 1)

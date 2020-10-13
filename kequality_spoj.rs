@@ -22,6 +22,12 @@ mod kingdom {
         roads: Vec<Road>
     }
 
+    impl City {
+        fn parent_id(&self) -> CityId {
+            self.roads[0].destination
+        }
+    }
+
     // A meeting point indicates the city where people in other cities are likely to meet.
     // Then people can also meet in the rest of the tree, only by taking roads that didn't lead them to the MP.
     struct MeetingPoint {
@@ -132,8 +138,8 @@ mod kingdom {
                 old_city_id_1 = city_id_1;
                 old_city_id_2 = city_id_2;
 
-                city_id_1 = self.cities[city_id_1].roads[0].destination;
-                city_id_2 = self.cities[city_id_2].roads[0].destination;
+                city_id_1 = self.cities[city_id_1].parent_id();
+                city_id_2 = self.cities[city_id_2].parent_id();
                 traveled_distance += 1;
 
                 if city_id_1 == city_id_2 {break;}

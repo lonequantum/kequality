@@ -38,7 +38,7 @@ while [[ $total_people > 0 ]]; do
         limit=$((people > NUMBER_OF_CITIES ? NUMBER_OF_CITIES : people))
         length_of_query=$(shuf -i 1-${limit} -n 1)
 
-        cities="$cities $(shuf -i 1-${NUMBER_OF_CITIES} -n ${length_of_query} | tr '\n' ' ')"
+        cities=$(shuf -i 1-${NUMBER_OF_CITIES} -n ${length_of_query} | tr '\n' ' ')
 
         queries+=("$people ${cities:0:-1}")
         ((total_people -= people))

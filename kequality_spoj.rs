@@ -140,7 +140,7 @@ mod kingdom {
         }
 
         // Finds the halfway city between two cities that don't have the same depth.
-        fn find_meeting_point_from_two_depths(&self, mut deepest_city_id: CityId, mut shallowest_city_id: CityId) -> MeetingPoint {
+        fn find_meeting_point_from_two_depths(&self, deepest_city_id: CityId, shallowest_city_id: CityId) -> MeetingPoint {
             let deepest_city = &self.cities[deepest_city_id];
             let shallowest_city = &self.cities[shallowest_city_id];
 

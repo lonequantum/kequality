@@ -211,8 +211,7 @@ mod kingdom {
 
             if *size == None {
                 *size = Some(self.cities.iter()
-                                        .map(|city| city.tree_id)
-                                        .filter(|id| *id == tree_id)
+                                        .filter(|city| city.tree_id == tree_id)
                                         .count());
             }
 

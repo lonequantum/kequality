@@ -2,6 +2,8 @@
 
 
 mod kingdom {
+    use std::collections::HashMap;
+
     #[allow(non_camel_case_types)]
     pub type size_k = usize;
     pub type CityId = size_k;
@@ -41,7 +43,7 @@ mod kingdom {
     // It also memoizes some internal results.
     pub struct Kingdom {
         cities: Vec<City>,
-        trees_sizes: Vec<Option<size_k>>
+        trees_sizes: HashMap<TreeId, size_k>
     }
 
     impl Kingdom {
@@ -49,7 +51,6 @@ mod kingdom {
         // TODO: replace with "transmute" code.
         pub fn new(number_of_cities: size_k) -> Kingdom {
             let mut cities = Vec::new();
-            let mut trees_sizes = Vec::new();
 
             for tree_id in 0..number_of_cities {
                 cities.push(City{
@@ -57,10 +58,12 @@ mod kingdom {
                     depth: 0,
                     roads: Vec::new()
                 });
-                trees_sizes.push(None);
             }
 
-            Kingdom {cities, trees_sizes}
+            Kingdom {
+                cities,
+                trees_sizes: HashMap::new()
+            }
         }
 
         // Adds a two-way link between two cities.
@@ -205,15 +208,11 @@ mod kingdom {
 
         // Returns the number of cities of a given tree.
         fn tree_size(&mut self, tree_id: TreeId) -> size_k {
-            let size = &mut self.trees_sizes[tree_id];
-
-            if *size == None {
-                *size = Some(self.cities.iter()
-                                        .filter(|city| city.tree_id == tree_id)
-                                        .count());
-            }
-
-            size.unwrap()
+            *self.trees_sizes.entry(tree_id).or_insert(
+                self.cities.iter()
+                           .filter(|city| city.tree_id == tree_id)
+                           .count()
+            )
         }
     }
 }

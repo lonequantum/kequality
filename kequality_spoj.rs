@@ -33,6 +33,7 @@ mod kingdom {
     struct MeetingPoint {
         city_id: CityId,
         traveled_distance: size_k,
+        same_branch: bool, // true if all people come from the same branch of the tree
         dont_go_back_to: Vec<CityId>
     }
 
@@ -106,25 +107,76 @@ mod kingdom {
 
             let mut meeting_point_candidates = Vec::new();
 
-            for (i, &city_id_i) in query.iter().enumerate() {
-                let city_i = &self.cities[city_id_i];
+            for (i, &id_i) in query.iter().enumerate() {
+                let depth_i = self.cities[id_i].depth;
 
-                for &city_id_j in &query[(i + 1)..] {
-                    let city_j = &self.cities[city_id_j];
+                for &id_j in &query[(i + 1)..] {
+                    let depth_j = self.cities[id_j].depth;
 
-                    if city_i.depth != city_j.depth {
-                        if (city_i.depth + city_j.depth) % 2 == 1 {
+                    if depth_i != depth_j {
+                        if (depth_i + depth_j) % 2 == 1 {
                             return 0; // distance between two queried cities is an odd number of roads
                         }
+
+                        let (deepest_city_id, shallowest_city_id) = if depth_i < depth_j {
+                            (id_j, id_i)
+                        } else {
+                            (id_i, id_j)
+                        };
+
+                        meeting_point_candidates.push(
+                            self.find_meeting_point_from_two_depths(deepest_city_id, shallowest_city_id)
+                        );
                     } else {
                         meeting_point_candidates.push(
-                            self.find_meeting_point_from_one_depth(city_id_i, city_id_j)
+                            self.find_meeting_point_from_one_depth(id_i, id_j)
                         );
                     }
                 }
             }
 
             42
+        }
+
+        // Finds the halfway city between two cities that don't have the same depth.
+        fn find_meeting_point_from_two_depths(&self, mut deepest_city_id: CityId, mut shallowest_city_id: CityId) -> MeetingPoint {
+            let deepest_city = &self.cities[deepest_city_id];
+            let shallowest_city = &self.cities[shallowest_city_id];
+
+            let same_branch = {
+                let mut city = deepest_city;
+                while city.depth > shallowest_city.depth {
+                    city = &self.cities[city.parent_id()];
+                }
+
+                city as *const _ == shallowest_city as *const _
+            };
+
+            if same_branch {
+                let traveled_distance = (deepest_city.depth - shallowest_city.depth) / 2;
+                let meeting_point_depth = deepest_city.depth - traveled_distance;
+
+                let mut city = deepest_city;
+                let mut city_id = deepest_city_id;
+                let mut child_city_id;
+
+                loop {
+                    child_city_id = city_id;
+                    city_id = city.parent_id();
+                    city = &self.cities[city_id];
+
+                    if city.depth == meeting_point_depth {break;}
+                }
+
+                MeetingPoint {
+                    city_id,
+                    traveled_distance,
+                    same_branch,
+                    dont_go_back_to: vec![child_city_id, city.parent_id()]
+                }
+            } else {
+
+            }
         }
 
         // Finds the city that is the common ancestor of two cities that have the same depth.
@@ -148,6 +200,7 @@ mod kingdom {
             MeetingPoint {
                 city_id: city_id_1,
                 traveled_distance,
+                same_branch: false,
                 dont_go_back_to: vec![old_city_id_1, old_city_id_2]
             }
         }

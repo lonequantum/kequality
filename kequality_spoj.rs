@@ -118,14 +118,12 @@ mod kingdom {
                             return 0; // distance between two queried cities is an odd number of roads
                         }
 
-                        let (deepest_city_id, shallowest_city_id) = if depth_i < depth_j {
-                            (id_j, id_i)
-                        } else {
-                            (id_i, id_j)
-                        };
-
                         meeting_point_candidates.push(
-                            self.find_meeting_point_from_two_depths(deepest_city_id, shallowest_city_id)
+                            if depth_i < depth_j {
+                                self.find_meeting_point_from_two_depths(id_j, id_i)
+                            } else {
+                                self.find_meeting_point_from_two_depths(id_i, id_j)
+                            }
                         );
                     } else {
                         meeting_point_candidates.push(

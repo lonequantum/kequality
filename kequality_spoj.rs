@@ -35,7 +35,7 @@ mod kingdom {
     struct MeetingPoint {
         city_id: CityId,
         traveled_distance: size_k,
-        same_branch: bool, // true if all people come from the same branch of the tree
+        same_line: bool, // true if all people come from the same line of the tree
         dont_go_back_to: Vec<CityId>
     }
 
@@ -144,7 +144,7 @@ mod kingdom {
             let deepest_city = &self.cities[deepest_city_id];
             let shallowest_city = &self.cities[shallowest_city_id];
 
-            let same_branch = {
+            let same_line = {
                 let mut city = deepest_city;
                 while city.depth > shallowest_city.depth {
                     city = &self.cities[city.parent_id()];
@@ -153,7 +153,7 @@ mod kingdom {
                 city as *const _ == shallowest_city as *const _
             };
 
-            if same_branch {
+            if same_line {
                 let traveled_distance = (deepest_city.depth - shallowest_city.depth) / 2;
                 let meeting_point_depth = deepest_city.depth - traveled_distance;
 
@@ -172,7 +172,7 @@ mod kingdom {
                 MeetingPoint {
                     city_id,
                     traveled_distance,
-                    same_branch,
+                    same_line,
                     dont_go_back_to: vec![child_city_id, city.parent_id()]
                 }
             } else {
@@ -201,7 +201,7 @@ mod kingdom {
             MeetingPoint {
                 city_id: city_id_1,
                 traveled_distance,
-                same_branch: false,
+                same_line: false,
                 dont_go_back_to: vec![old_city_id_1, old_city_id_2]
             }
         }

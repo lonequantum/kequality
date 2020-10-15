@@ -170,7 +170,7 @@ mod kingdom {
                     city_id,
                     traveled_distance,
                     same_line: true,
-                    dont_go_back_to: vec![child_city_id, city.parent_id()]
+                    dont_go_back_to: vec![child_city_id, self.cities[city_id].parent_id()]
                 }
             }
         }

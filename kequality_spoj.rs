@@ -148,7 +148,7 @@ mod kingdom {
             let same_line;
 
             let mut city_id = deepest_city_id;
-            for _ in 1..depth_diff {
+            for _ in 0..depth_diff {
                 city_id = self.cities[city_id].parent_id();
             }
 

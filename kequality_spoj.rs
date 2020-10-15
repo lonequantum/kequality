@@ -123,9 +123,9 @@ mod kingdom {
 
                         meeting_point_candidates.push(
                             if depth_i < depth_j {
-                                self.find_meeting_point_from_two_depths(id_j, id_i)
+                                self.find_meeting_point_from_two_depths(id_j, id_i, depth_j, depth_i)
                             } else {
-                                self.find_meeting_point_from_two_depths(id_i, id_j)
+                                self.find_meeting_point_from_two_depths(id_i, id_j, depth_i, depth_j)
                             }
                         );
                     } else {
@@ -140,43 +140,38 @@ mod kingdom {
         }
 
         // Finds the halfway city between two cities that don't have the same depth.
-        fn find_meeting_point_from_two_depths(&self, deepest_city_id: CityId, shallowest_city_id: CityId) -> MeetingPoint {
-            let deepest_city = &self.cities[deepest_city_id];
-            let shallowest_city = &self.cities[shallowest_city_id];
+        // Critical function, must be optimized as much as possible.
+        fn find_meeting_point_from_two_depths(&self, deepest_city_id: CityId, shallowest_city_id: CityId,
+                                                  deepest_city_depth: size_k, shallowest_city_depth: size_k) -> MeetingPoint {
 
-            let same_line = {
-                let mut city = deepest_city;
-                while city.depth > shallowest_city.depth {
-                    city = &self.cities[city.parent_id()];
+            let depth_diff = deepest_city_depth - shallowest_city_depth;
+
+            let mut city_id = deepest_city_id;
+            for _ in 1..depth_diff {
+                city_id = self.cities[city_id].parent_id();
+            }
+
+            if city_id != shallowest_city_id { // if the two cities are on different lines of the tree
+                // TODO
+            } else {
+                let traveled_distance = depth_diff / 2;
+
+                city_id = deepest_city_id;
+                let mut i = traveled_distance;
+                while i > 1 {
+                    city_id = self.cities[city_id].parent_id();
+                    i -= 1;
                 }
 
-                city as *const _ == shallowest_city as *const _
-            };
-
-            if same_line {
-                let traveled_distance = (deepest_city.depth - shallowest_city.depth) / 2;
-                let meeting_point_depth = deepest_city.depth - traveled_distance;
-
-                let mut city = deepest_city;
-                let mut city_id = deepest_city_id;
-                let mut child_city_id;
-
-                loop {
-                    child_city_id = city_id;
-                    city_id = city.parent_id();
-                    city = &self.cities[city_id];
-
-                    if city.depth == meeting_point_depth {break;}
-                }
+                let child_city_id = city_id;
+                city_id = self.cities[city_id].parent_id();
 
                 MeetingPoint {
                     city_id,
                     traveled_distance,
-                    same_line,
+                    same_line: true,
                     dont_go_back_to: vec![child_city_id, city.parent_id()]
                 }
-            } else {
-
             }
         }
 

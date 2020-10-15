@@ -143,35 +143,39 @@ mod kingdom {
         // Critical function, must be optimized as much as possible.
         fn find_meeting_point_from_two_depths(&self, deepest_city_id: CityId, shallowest_city_id: CityId,
                                                   deepest_city_depth: size_k, shallowest_city_depth: size_k) -> MeetingPoint {
-
             let depth_diff = deepest_city_depth - shallowest_city_depth;
+            let traveled_distance;
+            let same_line;
 
             let mut city_id = deepest_city_id;
             for _ in 1..depth_diff {
                 city_id = self.cities[city_id].parent_id();
             }
 
-            if city_id != shallowest_city_id { // if the two cities are on different lines of the tree
-                // TODO
+            if city_id != shallowest_city_id {
+                same_line = false;
+                let mp = self.find_meeting_point_from_one_depth(city_id, shallowest_city_id);
+                traveled_distance = depth_diff / 2 + mp.traveled_distance;
             } else {
-                let traveled_distance = depth_diff / 2;
+                same_line = true;
+                traveled_distance = depth_diff / 2;
+            }
 
-                city_id = deepest_city_id;
-                let mut i = traveled_distance;
-                while i > 1 {
-                    city_id = self.cities[city_id].parent_id();
-                    i -= 1;
-                }
-
-                let child_city_id = city_id;
+            city_id = deepest_city_id;
+            let mut i = traveled_distance;
+            while i > 1 {
                 city_id = self.cities[city_id].parent_id();
+                i -= 1;
+            }
 
-                MeetingPoint {
-                    city_id,
-                    traveled_distance,
-                    same_line: true,
-                    dont_go_back_to: vec![child_city_id, self.cities[city_id].parent_id()]
-                }
+            let child_city_id = city_id;
+            city_id = self.cities[city_id].parent_id();
+
+            MeetingPoint {
+                city_id,
+                traveled_distance,
+                same_line,
+                dont_go_back_to: vec![child_city_id, self.cities[city_id].parent_id()]
             }
         }
 

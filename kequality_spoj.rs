@@ -108,7 +108,8 @@ mod kingdom {
                 }
             }
 
-            let mut meeting_point_candidates = Vec::new();
+            let mut current_meeting_point;
+            let mut previous_meeting_point = None;
 
             for (i, &id_i) in query.iter().enumerate() {
                 let depth_i = self.cities[id_i].depth;
@@ -121,18 +122,25 @@ mod kingdom {
                             return 0; // distance between two queried cities is an odd number of roads
                         }
 
-                        meeting_point_candidates.push(
-                            if depth_i < depth_j {
-                                self.find_meeting_point_from_two_depths(id_j, id_i, depth_j, depth_i)
-                            } else {
-                                self.find_meeting_point_from_two_depths(id_i, id_j, depth_i, depth_j)
-                            }
-                        );
+                        current_meeting_point = if depth_i < depth_j {
+                            self.find_meeting_point_from_two_depths(id_j, id_i, depth_j, depth_i)
+                        } else {
+                            self.find_meeting_point_from_two_depths(id_i, id_j, depth_i, depth_j)
+                        };
                     } else {
-                        meeting_point_candidates.push(
-                            self.find_meeting_point_from_one_depth(id_i, id_j)
-                        );
+                        current_meeting_point = self.find_meeting_point_from_one_depth(id_i, id_j);
                     }
+
+                    // Merges results
+
+                    match previous_meeting_point {
+                        None => previous_meeting_point = Some(current_meeting_point),
+
+                        Some() => {
+
+                        }
+                    }
+
                 }
             }
 

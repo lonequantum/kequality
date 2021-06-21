@@ -3,6 +3,7 @@
 
 mod kingdom {
     use std::collections::HashMap;
+    use std::cmp::Ordering;
 
     #[allow(non_camel_case_types)]
     pub type size_k = usize;
@@ -28,6 +29,15 @@ mod kingdom {
         fn parent_id(&self) -> CityId {
             self.roads[0].destination
         }
+
+        // Augments vec_dst with new elements found in vec_src
+        fn union_vec_ids(vec_dst: &mut Vec<CityId>, vec_src: &Vec<CityId>) {
+            for element in vec_src {
+                if !vec_dst.contains(element) {
+                    vec_dst.push(*element);
+                }
+            }
+        }
     }
 
     // A meeting point indicates the city where people in other cities are likely to meet.
@@ -35,7 +45,6 @@ mod kingdom {
     struct MeetingPoint {
         city_id: CityId,
         traveled_distance: size_k,
-        same_line: bool, // true if all people come from the same line of the tree
         dont_go_back_to: Vec<CityId>
     }
 
@@ -109,7 +118,11 @@ mod kingdom {
             }
 
             let mut current_meeting_point;
-            let mut previous_meeting_point = None;
+            let mut merged_meeting_point = MeetingPoint {
+                city_id: 0,
+                traveled_distance: 0,
+                dont_go_back_to: Vec::new()
+            };
 
             for (i, &id_i) in query.iter().enumerate() {
                 let depth_i = self.cities[id_i].depth;
@@ -131,16 +144,58 @@ mod kingdom {
                         current_meeting_point = self.find_meeting_point_from_one_depth(id_i, id_j);
                     }
 
-                    // Merges results
+                    // Merges results to determine the final meeting point
 
-                    match previous_meeting_point {
-                        None => previous_meeting_point = Some(current_meeting_point),
+                    if merged_meeting_point.traveled_distance == 0 { // first iteration
+                        merged_meeting_point = MeetingPoint {
+                            ..current_meeting_point
+                        };
 
-                        Some() => {
+                    } else {
+                        if merged_meeting_point.city_id == current_meeting_point.city_id {
+                            if merged_meeting_point.traveled_distance != current_meeting_point.traveled_distance {
+                                return 0;
+                            } else {
+                                City::union_vec_ids(&mut merged_meeting_point.dont_go_back_to, &current_meeting_point.dont_go_back_to);
+                            }
+                        } else {
+                            let merged_city_id  = merged_meeting_point.city_id;
+                            let current_city_id = current_meeting_point.city_id;
+                            let merged_depth  = self.cities[merged_city_id].depth;
+                            let current_depth = self.cities[current_city_id].depth;
+                            let merged_traveled  = merged_meeting_point.traveled_distance;
+                            let current_traveled = current_meeting_point.traveled_distance;
 
+                            match (merged_depth + merged_traveled).cmp(&(current_depth + current_traveled)) {
+                                Ordering::Equal => {}
+                                Ordering::Less => {}
+                                Ordering::Greater => {}
+                            }
+                            /*match merged_depth.cmp(&current_depth) {
+                                Ordering::Equal => {
+                                    if merged_meeting_point.dont_go_back_to.contains(&self.cities[merged_city_id].parent_id())
+                                    || current_meeting_point.dont_go_back_to.contains(&self.cities[current_city_id].parent_id()) {
+                                        return 0;
+                                    }
+
+                                    let mut mp = self.find_meeting_point_from_one_depth(merged_city_id, current_city_id);
+
+                                    if merged_traveled == current_traveled {
+                                        mp.traveled_distance += merged_traveled;
+                                        merged_meeting_point = mp;
+                                    } else {
+                                        
+                                    }
+                                }
+
+                                Ordering::Less => {
+                                }
+
+                                Ordering::Greater => {
+                                }
+                            }*/
                         }
                     }
-
                 }
             }
 
@@ -152,7 +207,6 @@ mod kingdom {
                                                   deepest_city_depth: size_k, shallowest_city_depth: size_k) -> MeetingPoint {
             let depth_diff = deepest_city_depth - shallowest_city_depth;
             let traveled_distance;
-            let same_line;
 
             let mut city_id = deepest_city_id;
             for _ in 0..depth_diff {
@@ -160,11 +214,9 @@ mod kingdom {
             }
 
             if city_id != shallowest_city_id {
-                same_line = false;
                 let mp = self.find_meeting_point_from_one_depth(city_id, shallowest_city_id);
                 traveled_distance = depth_diff / 2 + mp.traveled_distance;
             } else {
-                same_line = true;
                 traveled_distance = depth_diff / 2;
             }
 
@@ -181,7 +233,6 @@ mod kingdom {
             MeetingPoint {
                 city_id,
                 traveled_distance,
-                same_line,
                 dont_go_back_to: vec![child_city_id, self.cities[city_id].parent_id()]
             }
         }
@@ -207,7 +258,6 @@ mod kingdom {
             MeetingPoint {
                 city_id: city_id_1,
                 traveled_distance,
-                same_line: false,
                 dont_go_back_to: vec![old_city_id_1, old_city_id_2]
             }
         }

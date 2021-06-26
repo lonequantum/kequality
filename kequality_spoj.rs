@@ -411,7 +411,7 @@ fn main() {
         match expected {
             None => println!("{}", answer),
             Some(value) if value == answer => println!("[OK ]\t{}", answer),
-            Some(value) => eprintln!("[ERR]\t{}\texpected:\t{}", answer, value)
+            Some(value) => eprintln!("[ERR]\t{}\texpected: {}", answer, value)
         }
     }
 }

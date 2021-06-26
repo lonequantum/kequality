@@ -30,7 +30,8 @@ mod kingdom {
             self.roads[0].destination
         }
 
-        // Augments vec_dst with new elements found in vec_src
+        // Augments vec_dst with new elements found in vec_src.
+        // I guess this signature is not idiomatic in the rust world, perhaps I should use slices
         fn union_vec_ids(vec_dst: &mut Vec<CityId>, vec_src: &Vec<CityId>) {
             for element in vec_src {
                 if !vec_dst.contains(element) {
@@ -144,62 +145,124 @@ mod kingdom {
                         current_meeting_point = self.find_meeting_point_from_one_depth(id_i, id_j);
                     }
 
-                    // Merges results to determine the final meeting point
+                    // Merges results to determine the final meeting point.
 
                     if merged_meeting_point.traveled_distance == 0 { // first iteration
                         merged_meeting_point = MeetingPoint {
                             ..current_meeting_point
                         };
 
-                    } else {
-                        if merged_meeting_point.city_id == current_meeting_point.city_id {
-                            if merged_meeting_point.traveled_distance != current_meeting_point.traveled_distance {
-                                return 0;
-                            } else {
-                                City::union_vec_ids(&mut merged_meeting_point.dont_go_back_to, &current_meeting_point.dont_go_back_to);
-                            }
+                        continue;
+                    }
+
+                    if merged_meeting_point.city_id == current_meeting_point.city_id {
+                        if merged_meeting_point.traveled_distance != current_meeting_point.traveled_distance {
+                            return 0; // the MP involves different traveled distances
                         } else {
-                            let merged_city_id  = merged_meeting_point.city_id;
-                            let current_city_id = current_meeting_point.city_id;
-                            let merged_depth  = self.cities[merged_city_id].depth;
-                            let current_depth = self.cities[current_city_id].depth;
-                            let merged_traveled  = merged_meeting_point.traveled_distance;
-                            let current_traveled = current_meeting_point.traveled_distance;
-
-                            match (merged_depth + merged_traveled).cmp(&(current_depth + current_traveled)) {
-                                Ordering::Equal => {}
-                                Ordering::Less => {}
-                                Ordering::Greater => {}
-                            }
-                            /*match merged_depth.cmp(&current_depth) {
-                                Ordering::Equal => {
-                                    if merged_meeting_point.dont_go_back_to.contains(&self.cities[merged_city_id].parent_id())
-                                    || current_meeting_point.dont_go_back_to.contains(&self.cities[current_city_id].parent_id()) {
-                                        return 0;
-                                    }
-
-                                    let mut mp = self.find_meeting_point_from_one_depth(merged_city_id, current_city_id);
-
-                                    if merged_traveled == current_traveled {
-                                        mp.traveled_distance += merged_traveled;
-                                        merged_meeting_point = mp;
-                                    } else {
-                                        
-                                    }
-                                }
-
-                                Ordering::Less => {
-                                }
-
-                                Ordering::Greater => {
-                                }
-                            }*/
+                            City::union_vec_ids(&mut merged_meeting_point.dont_go_back_to, &current_meeting_point.dont_go_back_to);
                         }
+                    } else {
+                        // The most complex part.
+
+                        let merged_city_id  = merged_meeting_point.city_id;
+                        let current_city_id = current_meeting_point.city_id;
+                        let merged_depth  = self.cities[merged_city_id].depth;
+                        let current_depth = self.cities[current_city_id].depth;
+                        let merged_traveled  = merged_meeting_point.traveled_distance;
+                        let current_traveled = current_meeting_point.traveled_distance;
+
+                        let path = self.collect_cities_between(merged_city_id, current_city_id, merged_depth, current_depth);
+                        let last_index = path.len() - 1;
+
+                        if merged_traveled > (last_index + current_traveled) {
+                            return 0;
+                        }
+                        let mut pos = last_index + current_traveled - merged_traveled;
+                        if pos % 2 != 0 {
+                            return 0;
+                        }
+                        pos /= 2;
+                        if pos > last_index {
+                            return 0;
+                        }
+
+                        if          pos > 0 && merged_meeting_point.dont_go_back_to.contains(&path[1])
+                        || pos < last_index && current_meeting_point.dont_go_back_to.contains(&path[last_index - 1]) {
+                            return 0; // at least one people would move to its inital MP then go backward to join another MP
+                        }
+
+                        merged_meeting_point = MeetingPoint {
+                            city_id: path[pos],
+                            traveled_distance: merged_traveled + pos,
+                            dont_go_back_to: {
+                                match pos {
+                                    0 => {
+                                        City::union_vec_ids(&mut merged_meeting_point.dont_go_back_to, &vec![path[1]]); // maybe not very idiomatic; path[1] is copied
+                                        merged_meeting_point.dont_go_back_to
+                                    },
+
+                                    v if v == last_index => {
+                                        City::union_vec_ids(&mut current_meeting_point.dont_go_back_to, &vec![path[last_index - 1]]);
+                                        current_meeting_point.dont_go_back_to
+                                    },
+
+                                    _ => vec![path[pos - 1], path[pos + 1]]
+                                }
+                            }
+                        };
                     }
                 }
             }
 
             42
+        }
+
+        // Finds cities along the shortest path from city 1 to city 2 (included).
+        fn collect_cities_between(&self, mut city_id_1: CityId, mut city_id_2: CityId,
+                                      mut city_depth_1: size_k, mut city_depth_2: size_k) -> Vec<CityId> {
+            let mut ret = vec![city_id_1];
+            let mut ter = vec![city_id_2];
+
+            match city_depth_1.cmp(&city_depth_2) {
+                Ordering::Equal => {}
+
+                Ordering::Less => {
+                    while city_depth_2 > city_depth_1 {
+                        city_id_2 = self.cities[city_id_2].parent_id();
+                        city_depth_2 -= 1;
+                        ter.push(city_id_2);
+                    }
+                    if city_id_1 == city_id_2 {
+                        ter.pop();
+                    }
+                }
+
+                Ordering::Greater => {
+                    while city_depth_1 > city_depth_2 {
+                        city_id_1 = self.cities[city_id_1].parent_id();
+                        city_depth_1 -= 1;
+                        ret.push(city_id_1);
+                    }
+                    if city_id_1 == city_id_2 {
+                        ret.pop();
+                    }
+                }
+            }
+
+            if city_id_1 != city_id_2 {
+                while city_id_1 != city_id_2 {
+                    city_id_1 = self.cities[city_id_1].parent_id();
+                    ret.push(city_id_1);
+                    city_id_2 = self.cities[city_id_2].parent_id();
+                    ter.push(city_id_2);
+                }
+                ter.pop();
+            }
+
+            ter.reverse();
+            ret.append(&mut ter);
+
+            ret
         }
 
         // Finds the halfway city between two cities that don't have the same depth.

@@ -214,7 +214,12 @@ mod kingdom {
                 }
             }
 
-            42
+            let count: size_k =
+            self.cities[merged_meeting_point.city_id].roads.iter()
+                                                           .filter(|r| !merged_meeting_point.dont_go_back_to.contains(&r.destination))
+                                                           .map(|r| r.reachable_cities_count)
+                                                           .sum();
+            1 + count // the MP itself and all the cities beyond
         }
 
         // Finds cities along the shortest path from city 1 to city 2 (included).

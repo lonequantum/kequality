@@ -338,6 +338,23 @@ mod kingdom {
                            .count()
             )
         }
+
+        // Sets reachable_cities_count for all roads of all trees.
+        pub fn precount(&mut self) {
+            for c in (0 .. (self.cities.len() - 1)).rev() {
+                for r in 0 .. self.cities[c].roads.len() {
+                    let d = self.cities[c].roads[r].destination;
+
+                    if d > c {
+                        let count: size_k = self.cities[d].roads.iter()
+                                                          .map(|road| road.reachable_cities_count)
+                                                          .sum(); // includes `+ 0` operation each time, but it's better than filtering roads to parents
+                        self.cities[c].roads[r].reachable_cities_count = 1 + count;
+                        self.cities[d].roads[0].reachable_cities_count = self.tree_size(self.cities[c].depth) - 1 - count;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -372,6 +389,8 @@ fn main() {
             domki.link(city_id_1, city_id_2);
         }
     }
+
+    domki.precount();
 
     let number_of_queries: u32 = {
         let mut line = String::new();

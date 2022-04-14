@@ -1,9 +1,10 @@
 # Kingdom of Equality
 
-This is my solution to  
+This is my solution attempt to  
 [https://www.spoj.com/problems/KEQUALITY/](https://www.spoj.com/problems/KEQUALITY/)
 
-Status: submitted, compilation error with rustc 1.33  
-waiting for spoj.com to update their compiler
+Status: submitted, wrong result  
+Possible cause: the program assumes the input data is safely ordered (like it is in the example on the problem page) but probably isn't.  
+Of course it passes simple local tests.
 
 Please note that spoj.com requires one-file solutions, that's why I don't use any external definition/crate/dependency in my sources.
